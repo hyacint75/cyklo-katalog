@@ -4,9 +4,12 @@ import ProductCard from "../../../components/ProductCard.astro";
 import { products } from "../../../data/products";
 
 export async function getStaticPaths() {
-  const categories = [...new Set(products.map((p) => p.category))];
+  const categories = [
+    ...new Set(products.map((p) => p.category.toLowerCase())),
+  ];
+
   return categories.map((c) => ({
-    params: { category: c.toLowerCase() },
+    params: { category: c },
   }));
 }
 

@@ -6,26 +6,57 @@ const categories = [...new Set(products.map((p) => p.category))];
 ---
 
 <BaseLayout title="Domů">
-  <!-- CATEGORY NAVIGATION -->
-  <section class="max-w-6xl mx-auto">
-    <h2 class="text-3xl font-semibold mb-12 text-center">Kategorie kol</h2>
+  <!-- HERO -->
+  <section
+    class="py-1 bg-black text-white text-center relative overflow-hidden"
+  >
+    <!-- jemný zlatý gradient -->
+    <div
+      class="absolute inset-0 opacity-20"
+      style="background: radial-gradient(circle at top, #d4af37 0%, transparent 60%)"
+    >
+    </div>
 
-    <div class="grid md:grid-cols-3 gap-10">
+    <div class="relative z-10 max-w-4xl mx-auto">
+      <h1 class="text-6xl font-bold tracking-tight">
+        <span class="text-[#d4af37]">ELITE</span> PERFORMANCE
+      </h1>
+
+      <p class="mt-8 text-lg text-neutral-400">
+        Prémiový katalog výkonnostních kol.
+      </p>
+
+      <div class="mt-10 h-1 w-24 mx-auto bg-[#d4af37]"></div>
+    </div>
+  </section>
+
+  <!-- CATEGORY GRID -->
+  <section class="max-w-7xl mx-auto py-24">
+    <h2 class="text-3xl font-semibold mb-16 text-center text-neutral-800">
+      Kategorie
+    </h2>
+
+    <div class="grid md:grid-cols-3 gap-12">
       {
         categories.map((category) => (
           <a
-            href={`/kola/kategorie/${category.toLowerCase()}`}
-            class="group relative overflow-hidden rounded-2xl border hover:shadow-xl transition"
+            href={`/kola/kategorie/${category}`}
+            class="group relative border border-neutral-300 p-16 transition hover:border-[#d4af37] text-center flex flex-col items-center"
           >
-            <div class="p-16 text-center bg-neutral-50 group-hover:bg-black transition">
-              <h3 class="text-2xl font-semibold capitalize group-hover:text-white transition">
-                {category}
-              </h3>
+            <div
+              class="absolute inset-0 opacity-0 group-hover:opacity-5 transition"
+              style="background-color:#d4af37"
+            />
 
-              <p class="mt-4 text-neutral-500 group-hover:text-neutral-300 transition">
-                Prozkoumat kolekci
-              </p>
-            </div>
+            <h3 class="text-2xl font-bold uppercase tracking-wide group-hover:text-[#d4af37] transition">
+              {category}
+            </h3>
+
+            <div class="mt-6 h-1 w-16 bg-neutral-800 group-hover:bg-[#d4af37] transition" />
+
+            <p class="mt-6 text-neutral-500 text-sm uppercase tracking-widest">
+              Explore
+            </p>
           </a>
         ))
       }

@@ -1,0 +1,129 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro"
+import { products } from "../../data/products"
+import { brands } from "../../data/brands"
+
+export async function getStaticPaths() {
+  return products.map(p => ({
+    params: { slug: p.slug }
+  }))
+}
+
+const { slug } = Astro.params
+
+const product = products.find(p => p.slug === slug)
+
+if (!product) {
+  throw new Error("Produkt nenalezen")
+}
+
+const brandData = brands.find(b => b.name === product.brand)
+
+const price = Number(product.price ?? 0)
+
+const structuredData = {
+  "@context": "https://schema.org/",
+  "@type": "Product",
+  name: product.name,
+  image: product.image,
+  description: product.description,
+  brand: {
+    "@type": "Brand",
+    name: product.brand
+  },
+  offers: {
+    "@type": "Offer",
+    priceCurrency: "CZK",
+    price: price,
+    availability: "https://schema.org/InStock",
+    url: Astro.url.href
+  }
+}
+---
+
+<BaseLayout
+  title={product.name}
+  description={product.description}
+>
+
+  <script type="application/ld+json">
+    {JSON.stringify(structuredData)}
+  </script>
+
+  <div class="grid md:grid-cols-2 gap-16">
+
+    <!-- IMAGE -->
+    <div class="flex items-center justify-center bg-neutral-50 p-10 rounded-2xl">
+      <img
+        src={product.image}
+        alt={product.name}
+        class="max-h-[500px] object-contain"
+        loading="lazy"
+      />
+    </div>
+
+    <!-- CONTENT -->
+    <div>
+
+      <h1 class="text-4xl font-semibold tracking-tight">
+        {product.name}
+      </h1>
+
+     {brandData && (
+  <div
+    class="mb-20 text-center relative overflow-hidden animate-fade-in"
+    style={`--brand-color: ${brandData.color}`}
+  >
+
+    <!-- Gradient background -->
+    <div
+      class="absolute inset-0 opacity-10"
+      style="background: radial-gradient(circle at center, var(--brand-color) 0%, transparent 70%)"
+    ></div>
+
+    <!-- Content -->
+    <div class="relative z-10 py-16">
+
+      <img
+        src={brandData.logo}
+        alt={brandData.name}
+        class="h-24 mx-auto object-contain"
+      />
+
+      <p class="mt-6 text-neutral-600 text-lg tracking-wide">
+        {brandData.claim}
+      </p>
+
+      <div
+        class="mt-8 h-1 w-24 mx-auto rounded-full"
+        style="background-color: var(--brand-color)"
+      ></div>
+
+    </div>
+  </div>
+)}
+
+      <div class="mt-6 text-2xl font-semibold">
+        {price > 0
+          ? price.toLocaleString("cs-CZ") + " Kč"
+          : "Cena na dotaz"}
+      </div>
+
+      <p class="mt-8 text-neutral-700 leading-relaxed">
+        {product.description}
+      </p>
+
+      <!--<div class="mt-10">
+        <a
+          href="/kontakt"
+          class="inline-block px-8 py-4 border border-black rounded-full hover:bg-black hover:text-white transition"
+        >
+          Nezávazně poptat
+        </a>
+      </div>
+
+    </div>
+
+  </div> -->
+
+</BaseLayout>

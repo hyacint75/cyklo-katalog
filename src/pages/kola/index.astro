@@ -1,0 +1,47 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import ProductCard from "../../components/ProductCard.astro";
+import { products } from "../../data/products";
+import { slugify } from "../utils/slug";
+
+const brand = Astro.url.searchParams.get("brand");
+
+const filteredProducts = brand
+  ? products.filter((p) => p.brand === brand)
+  : products;
+
+const brands = [...new Set(products.map((p) => p.brand))];
+---
+
+<BaseLayout title={brand ? `Kola ${brand}` : "Kolekce kol"}>
+  <h1 class="text-4xl font-semibold mb-12 tracking-tight">Kolekce</h1>
+
+  <div class="flex flex-wrap gap-4 mb-16">
+    <a
+      href="/kola"
+      class={`px-6 py-2 rounded-full border transition ${
+        !brand
+          ? "bg-black text-white"
+          : "border-neutral-300 hover:bg-neutral-100"
+      }`}
+    >
+      Vše
+    </a>
+
+    {
+      brands.map((b) => (
+        <a href={`/kola/znacka/${b.toLowerCase().replace(/\s+/g, "-")}`}>{b}</a>
+      ))
+    }
+  </div>
+
+  <div class="grid md:grid-cols-2 xl:grid-cols-3 gap-14">
+    {filteredProducts.map((p) => <ProductCard product={p} />)}
+  </div>
+
+  {
+    filteredProducts.length === 0 && (
+      <p class="text-neutral-500 mt-12">Žádné produkty pro tuto značku.</p>
+    )
+  }
+</BaseLayout>

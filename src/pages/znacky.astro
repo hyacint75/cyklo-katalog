@@ -1,0 +1,49 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import { products } from "../data/products";
+import { slugify } from "../utils/slug";
+
+const brands = [...new Set(products.map((p) => p.brand))];
+
+function countProducts(brand: string) {
+  return products.filter((p) => p.brand === brand).length;
+}
+
+function getBrandImage(brand: string) {
+  return products.find((p) => p.brand === brand)?.brandImage;
+}
+---
+
+<BaseLayout title="Značky">
+  <h1 class="text-4xl font-semibold mb-16 tracking-tight">Značky</h1>
+
+  <div class="grid md:grid-cols-3 gap-12">
+    {
+      brands.map((b) => {
+        const count = countProducts(b);
+        const image = getBrandImage(b);
+
+        return (
+          <a
+            href={`/kola/znacka/${slugify(b)}`}
+            class="bg-white rounded-2xl border hover:shadow-lg transition overflow-hidden"
+          >
+            <div class="h-40 flex items-center justify-center bg-neutral-50">
+              {image && (
+                <img src={image} alt={b} class="max-h-20 object-contain" />
+              )}
+            </div>
+
+            <div class="p-8 text-center">
+              <div class="text-xl font-medium">{b}</div>
+
+              <div class="text-neutral-500 mt-2">
+                {count} {count === 1 ? "model" : "modely"}
+              </div>
+            </div>
+          </a>
+        );
+      })
+    }
+  </div>
+</BaseLayout>

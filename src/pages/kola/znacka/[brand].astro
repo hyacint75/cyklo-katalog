@@ -1,0 +1,60 @@
+---
+import BaseLayout from "../../../layouts/BaseLayout.astro";
+import ProductCard from "../../../components/ProductCard.astro";
+import Breadcrumb from "../../../components/Breadcrumb.astro";
+import { products } from "../../../data/products";
+import { slugify } from "../../../utils/slug";
+
+// funkce pro bezpečný slug
+function slugify(text) {
+  return text
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/\s+/g, "-");
+}
+
+export async function getStaticPaths() {
+  const brands = [...new Set(products.map((p) => p.brand))];
+
+  return brands.map((b) => ({
+    params: {
+      brand: slugify(b),
+    },
+  }));
+}
+
+const { brand } = Astro.params;
+
+// najdeme původní název značky
+const originalBrand = [...new Set(products.map((p) => p.brand))].find(
+  (b) => slugify(b) === brand,
+);
+
+const filteredProducts = products.filter((p) => p.brand === originalBrand);
+const productCount = filteredProducts.length;
+---
+
+<BaseLayout
+  title={`Kola ${originalBrand}`}
+  description={`Prohlédněte si kompletní nabídku kol značky ${originalBrand}.`}
+>
+  <Breadcrumb
+    items={[
+      { label: "Domů", href: "/" },
+      { label: "Kola", href: "/kola" },
+      { label: `${originalBrand} (${productCount})` },
+    ]}
+  />
+
+  <h1 class="text-4xl font-semibold mb-16 tracking-tight">
+    {originalBrand}
+    <span class="text-neutral-500 text-2xl ml-3">
+      ({productCount})
+    </span>
+  </h1>
+
+  <div class="grid md:grid-cols-2 xl:grid-cols-3 gap-14">
+    {filteredProducts.map((p) => <ProductCard product={p} />)}
+  </div>
+</BaseLayout>

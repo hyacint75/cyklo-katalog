@@ -1,0 +1,46 @@
+---
+import BaseLayout from "../../../../layouts/BaseLayout.astro";
+import ProductCard from "../../../../components/ProductCard.astro";
+import { products } from "../../../../data/products";
+
+export async function getStaticPaths() {
+  const paths = [];
+
+  const brands = [...new Set(products.map((p) => p.brand))];
+  const categories = [...new Set(products.map((p) => p.category))];
+
+  for (const brand of brands) {
+    for (const category of categories) {
+      paths.push({
+        params: {
+          brand: brand.toLowerCase().replace(/\s+/g, "-"),
+          category: category.toLowerCase(),
+        },
+      });
+    }
+  }
+
+  return paths;
+}
+
+const { brand, category } = Astro.params;
+
+const normalizedBrand = brand.replace(/-/g, " ").toLowerCase();
+const normalizedCategory = category.toLowerCase();
+
+const filteredProducts = products.filter(
+  (p) =>
+    p.brand.toLowerCase() === normalizedBrand &&
+    p.category.toLowerCase() === normalizedCategory,
+);
+---
+
+<BaseLayout title={`${normalizedBrand} ${normalizedCategory}`}>
+  <h1 class="text-4xl font-semibold mb-16 tracking-tight capitalize">
+    {normalizedBrand} – {normalizedCategory}
+  </h1>
+
+  <div class="grid md:grid-cols-2 xl:grid-cols-3 gap-14">
+    {filteredProducts.map((p) => <ProductCard product={p} />)}
+  </div>
+</BaseLayout>

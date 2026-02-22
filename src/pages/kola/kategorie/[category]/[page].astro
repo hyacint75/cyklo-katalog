@@ -1,0 +1,95 @@
+---
+import BaseLayout from "../../../../layouts/BaseLayout.astro";
+import ProductCard from "../../../../components/ProductCard.astro";
+import { products } from "../../../../data/products";
+
+const ITEMS_PER_PAGE = 6;
+
+export async function getStaticPaths() {
+  const categories = [
+    ...new Set(products.map((p) => p.category.toLowerCase())),
+  ];
+
+  const paths = [];
+
+  for (const category of categories) {
+    const categoryProducts = products.filter(
+      (p) => p.category.toLowerCase() === category,
+    );
+
+    const totalPages = Math.ceil(categoryProducts.length / ITEMS_PER_PAGE);
+
+    for (let page = 1; page <= totalPages; page++) {
+      paths.push({
+        params: {
+          category,
+          page: page.toString(),
+        },
+      });
+    }
+  }
+
+  return paths;
+}
+
+const { category, page } = Astro.params;
+const currentPage = Number(page);
+
+const categoryProducts = products.filter(
+  (p) => p.category.toLowerCase() === category.toLowerCase(),
+);
+
+const totalPages = Math.ceil(categoryProducts.length / ITEMS_PER_PAGE);
+
+const start = (currentPage - 1) * ITEMS_PER_PAGE;
+const paginated = categoryProducts.slice(start, start + ITEMS_PER_PAGE);
+---
+
+<BaseLayout title={`Kategorie ${category} – Strana ${currentPage}`}>
+  <h1 class="text-4xl font-semibold mb-16 capitalize text-center">
+    {category}
+  </h1>
+
+  <div class="grid md:grid-cols-2 xl:grid-cols-3 gap-12">
+    {paginated.map((p) => <ProductCard product={p} />)}
+  </div>
+
+  <!-- PAGINATION -->
+  {
+    totalPages > 1 && (
+      <div class="flex justify-center items-center gap-8 mt-20">
+        {/* PŘEDCHOZÍ */}
+        {currentPage > 1 ? (
+          <a
+            href={`/kola/kategorie/${category}/${currentPage - 1}`}
+            class="px-6 py-3 border border-neutral-300 hover:border-[#d4af37] transition uppercase text-sm tracking-wider"
+          >
+            ← Předchozí
+          </a>
+        ) : (
+          <span class="px-6 py-3 border border-neutral-200 text-neutral-400 uppercase text-sm tracking-wider">
+            ← Předchozí
+          </span>
+        )}
+
+        <span class="text-neutral-500 text-sm tracking-widest">
+          {currentPage} / {totalPages}
+        </span>
+
+        {/* DALŠÍ */}
+        {currentPage < totalPages ? (
+          <a
+            href={`/kola/kategorie/${category}/${currentPage + 1}`}
+            class="px-6 py-3 border border-neutral-300 hover:border-[#d4af37] transition uppercase text-sm tracking-wider"
+          >
+            Další →
+          </a>
+        ) : (
+          <span class="px-6 py-3 border border-neutral-200 text-neutral-400 uppercase text-sm tracking-wider">
+            Další →
+          </span>
+        )}
+      </div>
+    )
+  }
+</BaseLayout>

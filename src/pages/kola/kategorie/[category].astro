@@ -3,28 +3,56 @@ import BaseLayout from "../../../layouts/BaseLayout.astro";
 import ProductCard from "../../../components/ProductCard.astro";
 import { products } from "../../../data/products";
 
+const ITEMS_PER_PAGE = 6;
+
 export async function getStaticPaths() {
   const categories = [
     ...new Set(products.map((p) => p.category.toLowerCase())),
   ];
 
-  return categories.map((c) => ({
-    params: { category: c },
+  return categories.map((category) => ({
+    params: { category },
   }));
 }
-const currentPage = 1;
 
 const { category } = Astro.params;
 
-const filtered = products.filter((p) => p.category.toLowerCase() === category);
+const categoryProducts = products.filter(
+  (p) => p.category.toLowerCase() === category,
+);
+
+const paginated = categoryProducts.slice(0, ITEMS_PER_PAGE);
+
+const totalPages = Math.ceil(categoryProducts.length / ITEMS_PER_PAGE);
 ---
 
 <BaseLayout title={`Kategorie ${category}`}>
-  <h1 class="text-4xl font-semibold mb-16 capitalize">
+  <h1 class="text-4xl font-semibold mb-16 capitalize text-center">
     {category}
   </h1>
 
   <div class="grid md:grid-cols-2 xl:grid-cols-3 gap-14">
-    {filtered.map((p) => <ProductCard product={p} />)}
+    {paginated.map((p) => <ProductCard product={p} />)}
   </div>
+
+  {
+    totalPages > 1 && (
+      <div class="flex justify-center gap-8 mt-16">
+        <span class="px-6 py-3 border border-neutral-200 text-neutral-400 uppercase text-sm">
+          ← Předchozí
+        </span>
+
+        <span class="text-neutral-500 text-sm tracking-widest">
+          1 / {totalPages}
+        </span>
+
+        <a
+          href={`/kola/kategorie/${category}/2`}
+          class="px-6 py-3 border border-neutral-300 hover:border-[#d4af37] transition uppercase text-sm"
+        >
+          Další →
+        </a>
+      </div>
+    )
+  }
 </BaseLayout>
